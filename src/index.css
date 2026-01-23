@@ -1,68 +1,50 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@layer utilities {
+  /* Stitch 원본: Liquid Glass */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.1);
+  }
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Stitch 원본: Intense Glass */
+  .liquid-glass-intense {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 20px rgba(255, 126, 179, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+
+  /* Stitch 원본: Inner Glow (누락되었던 부분 복구) */
+  .inner-glow {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  /* Stitch 원본: Text Glow */
+  .text-glow {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  }
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Stitch 원본: Body 설정 및 그라데이션 */
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+  /* 원본의 CSS 변수(--mesh-gradient)를 그대로 적용 */
+  background-color: #2e1065;
+  background-image: 
+      radial-gradient(at 0% 0%, #4c1d95 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #9d174d 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #1e3a8a 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #701a75 0px, transparent 50%),
+      #2e1065;
+  background-attachment: fixed;
+  
+  /* 원본의 높이 설정 복구 (중요!) */
+  min-height: max(884px, 100dvh);
+  color: white;
 }
