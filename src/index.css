@@ -40,8 +40,8 @@ body {
       radial-gradient(at 0% 0%, #4c1d95 0px, transparent 50%),
       radial-gradient(at 100% 0%, #9d174d 0px, transparent 50%),
       radial-gradient(at 100% 100%, #1e3a8a 0px, transparent 50%),
-      radial-gradient(at 0% 100%, #701a75 0px, transparent 50%),
-      #2e1065;
+      radial-gradient(at 0% 100%, #701a75 0px, transparent 50%);
+      
   background-attachment: fixed;
   
   /* 원본의 높이 설정 복구 (중요!) */

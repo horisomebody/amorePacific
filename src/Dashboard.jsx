@@ -1,8 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function Dashboard() {
+  // 1. 상태 관리 (변수 만들기)
+  const [searchTerm, setSearchTerm] = useState(""); // 검색어 저장
+  const [influencers, setInfluencers] = useState([]); // 받아온 인플루언서 목록 저장
+  const [loading, setLoading] = useState(false); // 로딩 중인지 확인
+  const [searched, setSearched] = useState(false); // 검색을 한 번이라도 했는지
+
+  // 2. 백엔드 요청 함수 (버튼 누르면 실행)
+  const handleGenerateReport = async () => {
+    if (!searchTerm) return alert("Please enter a category (e.g., Tech, Beauty)");
+
+    setLoading(true); // 로딩 시작
+    try {
+      // 파이썬 서버로 요청 보내기 (POST)
+      const response = await fetch("http://127.0.0.1:8000/recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          category: searchTerm, // 입력한 카테고리 보냄
+        }),
+      });
+
+      const data = await response.json(); // 응답(JSON) 받기
+      setInfluencers(data.results); // 목록 업데이트
+      setSearched(true); // 검색 완료 표시
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      alert("백엔드 서버가 켜져 있는지 확인해주세요!");
+    } finally {
+      setLoading(false); // 로딩 끝
+    }
+  };
+
   return (
-    // font-display, text-white, pb-32 등 Stitch의 body class를 여기에 적용
     <div className="font-display text-white pb-32 min-h-screen">
       
       {/* Navbar */}
@@ -25,18 +59,31 @@ export default function Dashboard() {
             <span className="material-symbols-outlined text-white/60">search</span>
           </div>
           <input 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleGenerateReport()}
             className="block w-full pl-12 pr-4 py-4 liquid-glass border-white/20 rounded-full placeholder:text-white/40 text-sm focus:ring-1 focus:ring-white/30 focus:outline-none transition-all" 
             placeholder="Search AI Influencers..." 
             type="text"
           />
         </div>
-        <button className="w-full liquid-glass-intense h-14 rounded-full flex items-center justify-center gap-3 text-white font-bold active:scale-[0.98] transition-transform group">
-          <span className="material-symbols-outlined text-accent-pink">magic_button</span>
-          <span className="text-glow">Generate Deep Report</span>
+        <button 
+          onClick={handleGenerateReport}
+          disabled={loading}
+          className="w-full liquid-glass-intense h-14 rounded-full flex items-center justify-center gap-3 text-white font-bold active:scale-[0.98] transition-transform group disabled:opacity-50"
+        >
+          {loading ? (
+            <span className="material-symbols-outlined animate-spin">refresh</span>
+          ) : (
+            <span className="material-symbols-outlined text-accent-pink">magic_button</span>
+          )}
+          <span className="text-glow">
+            {loading ? "Analyzing Database..." : "Generate Deep Report"}
+          </span>
         </button>
       </div>
 
-      {/* Real-time Analysis (details 태그 사용) */}
+      {/* Real-time Analysis (장식용) */}
       <div className="px-6 py-4">
         <div className="liquid-glass rounded-3xl overflow-hidden">
           <details className="group" open>
@@ -77,59 +124,58 @@ export default function Dashboard() {
       {/* Section Header */}
       <div className="px-6 pt-6 pb-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-glow">Trending Influencers</h3>
+          <h3 className="text-lg font-bold text-glow">
+            {searched ? `Found ${influencers.length} Results` : "Trending Influencers"}
+          </h3>
           <span className="text-accent-cyan text-xs font-semibold">View All</span>
         </div>
       </div>
 
-      {/* Grid Cards */}
+      {/* Grid Cards (데이터 연동됨!) */}
       <div className="px-6 grid grid-cols-2 gap-4">
-        {/* Card 1 */}
-        <div className="liquid-glass p-4 rounded-[2.5rem] border-white/20">
-          <div className="relative mb-4">
-            {/* 이미지는 실제 이미지가 없어서 임시 이미지(Unsplash)로 대체합니다. 원본과 동일하게 보이려면 src만 바꾸시면 됩니다. */}
-            <img alt="AI Influencer 1" className="w-full aspect-square object-cover rounded-full border-2 border-white/30" src="https://images.unsplash.com/photo-1620067925093-801122ac1408?q=80&w=200&auto=format&fit=crop"/>
-            <div className="absolute -bottom-1 -right-1 liquid-glass p-1 rounded-full border-white/40">
-              <span className="material-symbols-outlined text-accent-cyan text-xs fill-1">verified</span>
+        {influencers.length > 0 ? (
+          // 데이터가 있으면 map으로 반복해서 보여줌
+          influencers.map((inf) => (
+            // [수정 포인트] 원본 HTML과 맞추기 위해 hover 효과를 제거했습니다.
+            <div key={inf.id} className="liquid-glass p-4 rounded-[2.5rem] border-white/20">
+              <div className="relative mb-4">
+                <img 
+                  alt={inf.name} 
+                  className="w-full aspect-square object-cover rounded-full border-2 border-white/30" 
+                  src={inf.image}
+                />
+                <div className="absolute -bottom-1 -right-1 liquid-glass p-1 rounded-full border-white/40">
+                  <span className="material-symbols-outlined text-accent-cyan text-xs fill-1">verified</span>
+                </div>
+              </div>
+              <h4 className="font-bold text-sm truncate text-glow">{inf.name}</h4>
+              <p className="text-[10px] text-accent-pink mb-2">{inf.category}</p>
+              
+              <div className="mt-2 space-y-1.5">
+                <div className="flex justify-between text-[10px] font-bold text-accent-lavender">
+                  <span>Consistency</span>
+                  <span>{inf.consistency_score}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
+                  <div 
+                    className="h-full bg-gradient-to-r from-accent-cyan to-accent-lavender rounded-full shadow-[0_0_8px_rgba(0,242,255,0.4)]" 
+                    style={{width: `${inf.consistency_score}%`}}
+                  ></div>
+                </div>
+              </div>
+              <p className="mt-3 text-[10px] text-white/60 leading-relaxed italic line-clamp-2">
+                "{inf.description}"
+              </p>
             </div>
+          ))
+        ) : (
+          // 데이터가 없을 때 보여줄 안내 문구
+          <div className="col-span-2 text-center py-10 opacity-60">
+            <span className="material-symbols-outlined text-4xl mb-2">search_off</span>
+            <p className="text-sm">Search for a category to see results.</p>
+            <p className="text-xs text-white/50">(Try: Tech, Beauty, Gaming)</p>
           </div>
-          <h4 className="font-bold text-sm truncate text-glow">Luna Cyber</h4>
-          <div className="mt-4 space-y-1.5">
-            <div className="flex justify-between text-[10px] font-bold text-accent-lavender">
-              <span>Consistency</span>
-              <span>98%</span>
-            </div>
-            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
-              <div className="h-full bg-gradient-to-r from-accent-cyan to-accent-lavender rounded-full shadow-[0_0_8px_rgba(0,242,255,0.4)]" style={{width: "98%"}}></div>
-            </div>
-          </div>
-          <p className="mt-3 text-[10px] text-white/60 leading-relaxed italic line-clamp-2">
-            "High stylistic retention across posts. Natural face-mesh sync detected."
-          </p>
-        </div>
-
-        {/* Card 2 */}
-        <div className="liquid-glass p-4 rounded-[2.5rem] border-white/20">
-          <div className="relative mb-4">
-             <img alt="AI Influencer 2" className="w-full aspect-square object-cover rounded-full border-2 border-white/30" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"/>
-            <div className="absolute -bottom-1 -right-1 liquid-glass p-1 rounded-full border-white/40">
-              <span className="material-symbols-outlined text-accent-cyan text-xs fill-1">verified</span>
-            </div>
-          </div>
-          <h4 className="font-bold text-sm truncate text-glow">Nexus 7</h4>
-          <div className="mt-4 space-y-1.5">
-            <div className="flex justify-between text-[10px] font-bold text-accent-lavender">
-              <span>Consistency</span>
-              <span>84%</span>
-            </div>
-            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
-              <div className="h-full bg-gradient-to-r from-accent-cyan to-accent-lavender rounded-full" style={{width: "84%"}}></div>
-            </div>
-          </div>
-          <p className="mt-3 text-[10px] text-white/60 leading-relaxed italic line-clamp-2">
-            "Minor variance in skin-texture metadata. Prompt drift identified."
-          </p>
-        </div>
+        )}
       </div>
 
       {/* Bottom Nav (Fixed) */}
