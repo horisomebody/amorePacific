@@ -115,7 +115,6 @@ def run_scraper():
 
                 if not author_username:
                     print(f"⚠️ 작성자 아이디 추출 실패 (패스): {link}")
-                    page.screenshot(path=f"fail_{int(time.time())}.png")
                     continue
 
                 print(f"🔍 분석 중: @{author_username}")
@@ -179,7 +178,6 @@ def run_scraper():
                     except:
                         print("      ❌ [1단계 실패] 5초를 기다려도 게시물 링크를 못 찾았습니다.")
                         # [CCTV 1] 현재 화면 찰칵! -> 범인: 로딩이 덜 됐거나, 비공개 계정이거나, 로그인 풀림
-                        page.screenshot(path=f"debug_step1_grid_{author_username}.png")
                     
                     # 2. 링크 싹 긁어오기
                     # article 태그 안에 있는지 확인하지 말고, 일단 페이지 전체에서 찾음 (범위 확장)
@@ -216,9 +214,6 @@ def run_scraper():
                             page.goto(p_url, wait_until="domcontentloaded", timeout=15000)
                             time.sleep(random.uniform(2, 3))
                             
-                            # [CCTV 2] 상세 페이지 들어왔을 때 화면 찰칵!
-                            # 사진을 보면 -> 로그인 창이 떴는지, 흰 화면인지, 진짜 게시물인지 확인 가능
-                            page.screenshot(path=f"debug_step2_post_{author_username}_{i}.png")
 
                             post_type = "Reel" if "/reel/" in p_url else "Post"
                             post_text = "본문 없음"
