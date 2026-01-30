@@ -1,6 +1,7 @@
 import time
 import random
 import re
+from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 def stealth_sync(context):
     """playwright-stealth 라이브러리 내용 직접 삽입"""
@@ -17,13 +18,15 @@ def stealth_sync(context):
     """
     context.add_init_script(init_script)
 
+load_dotenv()
+SESSION_ID = os.getenv("SESSION_ID")
+
 # 설정 값 (실제 값으로 교체 필요)
 TARGET_HASHTAG = "클린뷰티"
-SESSION_ID = "80428412664%3A08ofLaZrE0XqdP%3A28%3AAYiHOQkE8q0LUfAfgL46Ei6LNZDvJGxAlh75Ufp81A" 
 
 def run_scraper():
     # [설정 1] 여기에 크롤링에 사용하는 '내 부계정 아이디'를 적으세요 (제외 목적)
-    MY_USERNAME = "genejichoong"  # 예: "test_account_123"
+    MY_USERNAME = os.getenv("MY_USERNAME")  # 예: "test_account_123"
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False, args=["--start-maximized"])
